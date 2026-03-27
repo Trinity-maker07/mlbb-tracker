@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>MLBB Profile Tracker</title>
+
+<!-- PWA Support -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0d0f1a">
+
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', sans-serif; background: #0d0f1a; color: #e0e6f0; min-height: 100vh; padding: 20px; }
+  h1 { text-align: center; font-size: 1.4rem; color: #f0c040; letter-spacing: 2px; margin-bottom: 4px; }
+  .subtitle { text-align: center; font-size: 0.75rem; color: #888; margin-bottom: 20px; }
+  .card { background: #161826; border: 1px solid #2a2d45; border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+  .card h2 { font-size: 0.85rem; color: #a0aac0; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; border-bottom: 1px solid #2a2d45; padding-bottom: 8px; }
+  .info-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+  .info-label { font-size: 0.8rem; color: #888; }
+  .info-value { font-size: 0.9rem; color: #f0c040; font-weight: 600; }
+  .rank-badge { background: linear-gradient(135deg, #7c3aed, #4f46e5); padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 700; color: white; }
+  .goal-badge { background: linear-gradient(135deg, #059669, #0d9488); padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 700; color: white; }
+  .progress-bar { background: #1e2235; border-radius: 20px; height: 10px; margin-top: 6px; overflow: hidden; }
+  .progress-fill { background: linear-gradient(90deg, #7c3aed, #f0c040); height: 100%; border-radius: 20px; }
+  .status-dot { width: 8px; height: 8px; border-radius: 50%; background: #10b981; display: inline-block; margin-right: 6px; }
+  input, select { background: #1e2235; border: 1px solid #3a3f5c; border-radius: 8px; padding: 8px; color: #e0e6f0; width: 100%; margin-bottom: 8px; }
+  .btn { background: linear-gradient(135deg, #f0c040, #e07820); color: #0d0f1a; border: none; border-radius: 8px; padding: 10px; font-weight: 700; cursor: pointer; width: 100%; }
+  .save-msg { text-align: center; font-size: 0.75rem; color: #10b981; margin-top: 4px; }
+</style>
+</head>
+
+<body>
+
+<h1>⚔️ MLBB PROFILE</h1>
+<p class="subtitle">Your ranked journey tracker</p>
+
+<div class="card">
+  <h2>📊 Rank Progress</h2>
+  <div class="info-row">
+    <span>Current Rank</span>
+    <span class="rank-badge" id="displayRank">Epic — 1 Star</span>
+  </div>
+  <div class="info-row">
+    <span>Goal</span>
+    <span class="goal-badge" id="displayGoal">Legend</span>
+  </div>
+
+  <div class="progress-bar">
+    <div class="progress-fill" id="progressFill"></div>
+  </div>
+  <div id="progressText"></div>
+
+  <input id="rankInput" placeholder="Rank (Epic III)">
+  <input id="starsInput" type="number" placeholder="Stars">
+  <button class="btn" onclick="updateRank()">Update Rank</button>
+</div>
+
+<div class="card">
+  <h2>🎯 Focus</h2>
+  <div id="displayFocus">Versatile Heroes</div>
+  <input id="focusInput" placeholder="New focus">
+  <button class="btn" onclick="updateFocus()">Update Focus</button>
+</div>
+
+<script>
+// ✅ FIXED STORAGE (localStorage)
+function saveData() {
+  localStorage.setItem("mlbb", JSON.stringify(state));
+}
+
+function loadData() {
+  let data = localStorage.getItem("mlbb");
+  if (data) state = JSON.parse(data);
+}
+
+// State
+let state = {
+  rank: "Epic — 1 Star",
+  goal: "Legend",
+  stars: 1,
+  maxStars: 7,
+  focus: "Versatile Heroes"
+};
+
+// Render
+function render() {
+  document.getElementById("displayRank").innerText = state.rank;
+  document.getElementById("displayGoal").innerText = state.goal;
+  document.getElementById("displayFocus").innerText = state.focus;
+
+  let pct = (state.stars / state.maxStars) * 100;
+  document.getElementById("progressFill").style.width = pct + "%";
+  document.getElementById("progressText").innerText = state.stars + "/" + state.maxStars;
+}
+
+// Actions
+function updateRank() {
+  let r = document.getElementById("rankInput").value;
+  let s = document.getElementById("starsInput").value;
+
+  if (r) state.rank = r;
+  if (s) state.stars = parseInt(s);
+
+  saveData();
+  render();
+}
+
+function updateFocus() {
+  let f = document.getElementById("focusInput").value;
+  if (!f) return;
+
+  state.focus = f;
+  saveData();
+  render();
+}
+
+// Init
+loadData();
+render();
+
+// ✅ SERVICE WORKER REGISTER
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js');
+}
+</script>
+
+</body>
+</html>
