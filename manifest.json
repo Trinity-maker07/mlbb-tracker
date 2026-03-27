@@ -1,0 +1,8 @@
+{
+  "name": "MLBB Tracker",
+  "short_name": "MLBB",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#0d0f1a",
+  "theme_color": "#0d0f1a"
+}
